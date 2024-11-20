@@ -8,8 +8,10 @@ pipeline {
         DOCKER_IMAGE_NAME = 'my-node-app'
         DOCKER_TAG = 'latest'
         DOCKER_IMAGE = "${GITHUB_PACKAGE_REGISTRY}/${GITHUB_REPOSITORY}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}"
+
         // GitHub 个人访问令牌 (PAT)
         GITHUB_PAT = "${env.GITHUB_PAT}"
+
         // Kubernetes 配置
         KUBECONFIG_REPO = 'https://github.com/weiweizhangr/helloworld_config.git'
         KUBECONFIG_PATH = ''
@@ -21,7 +23,7 @@ pipeline {
         NAMESPACE = 'argocd'
         REPO_URL = 'https://github.com/weiweizhangr/helloworld_config.git'
         DEST_SERVER = 'https://kubernetes.default.svc'
-        PATH = "./"
+        PATH = './'
     }
 
     stages {
@@ -65,6 +67,7 @@ pipeline {
                 }
             }
         }
+
         stage('Clone Git Config Repo and Deploy to Argo CD') {
             steps {
                 script {
@@ -76,6 +79,7 @@ pipeline {
                 }
             }
         }
+
         stage('Create Application in Argo CD') {
             steps {
                 script {
@@ -93,7 +97,7 @@ pipeline {
                             },
                             "source": {
                                 "repoURL": "${REPO_URL}",
-                                "path": "./",
+                                "path": "${PATH}",
                                 "targetRevision": "HEAD"
                             },
                             "project": "default"
@@ -102,7 +106,7 @@ pipeline {
                     """
 
                     sh """
-                    curl -X POST -H "Content-Type: application/json"  -d '${appJson}' ${ARGO_CD_URL}
+                    curl -X POST -H "Content-Type: application/json" -d '${appJson}' ${ARGO_CD_URL}
                     """
                 }
             }
