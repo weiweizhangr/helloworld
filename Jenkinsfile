@@ -73,14 +73,6 @@ pipeline {
                     git clone ${KUBECONFIG_REPO} gitconfig-repo
                     cd gitconfig-repo/${KUBECONFIG_PATH}
                     """
-  
-                    // 设置 KUBECONFIG 环境变量
-                    withEnv(["KUBECONFIG=${WORKSPACE}/gitconfig-repo/${KUBECONFIG_PATH}/${KUBECONFIG_FILE}"]) {
-                        // 应用 kubectl 命令
-                        sh """
-                        kubectl apply -f .
-                        """
-                    }
                 }
             }
         }
