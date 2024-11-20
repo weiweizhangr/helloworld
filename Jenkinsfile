@@ -10,7 +10,7 @@ pipeline {
         DOCKER_IMAGE = "${GITHUB_PACKAGE_REGISTRY}/${GITHUB_REPOSITORY}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}"
         
         // GitHub 个人访问令牌 (PAT)
-        GITHUB_PAT = ${env.GITHUB_PAT}
+        GITHUB_PAT = "${env.GITHUB_PAT}"
     }
 
     stages {
