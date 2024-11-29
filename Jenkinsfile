@@ -8,7 +8,7 @@ pipeline {
         DOCKER_IMAGE_NAME = 'my-node-app'
         DOCKER_TAG = 'latest'
         DOCKER_IMAGE = "${GITHUB_PACKAGE_REGISTRY}/${GITHUB_REPOSITORY}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}"
-
+        
         // GitHub 个人访问令牌 (PAT)
         GITHUB_PAT = "${env.GITHUB_PAT}"
 
@@ -18,12 +18,14 @@ pipeline {
         KUBECONFIG_FILE = ''
 
         // Argo CD API 相关信息
-        ARGO_CD_URL = 'https://localhost:8081/'
+        ARGO_CD_URL = 'https://localhost:8081/api/v1/applications'
         // ARGO_CD_TOKEN = "${env.ARGO_CD_TOKEN}"
         NAMESPACE = 'argocd'
         REPO_URL = 'https://github.com/weiweizhangr/helloworld_config.git'
         DEST_SERVER = 'https://kubernetes.default.svc'
-        PATH = './'
+        ARGO_CD_USERNAME = "admin"
+        ARGO_CD_PASSWORD = "DkN1LPRIUq7cd4a4"
+
     }
 
     stages {
@@ -67,22 +69,12 @@ pipeline {
                 }
             }
         }
-
-        stage('Clone Git Config Repo and Deploy to Argo CD') {
-            steps {
-                script {
-                    // 克隆 gitconfig 仓库
-                    sh """
-                    git clone ${KUBECONFIG_REPO} gitconfig-repo
-                    cd gitconfig-repo/${KUBECONFIG_PATH}
-                    """
-                }
-            }
-        }
-
         stage('Create Application in Argo CD') {
             steps {
                 script {
+                    def response = sh(script: "curl -k -X POST -H 'Content-Type: application/json' -d '{\"username\": \"${ARGO_CD_USERNAME}\", \"password\": \"${ARGO_CD_PASSWORD}\"}' ${ARGO_CD_URL}/api/v1/session", returnStdout: true).trim()
+                    def json = readJSON text: response
+                    ARGO_CD_TOKEN = json.token
                     // 调用 Argo CD API 创建应用
                     def appJson = """
                     {
@@ -97,7 +89,7 @@ pipeline {
                             },
                             "source": {
                                 "repoURL": "${REPO_URL}",
-                                "path": "${PATH}",
+                                "path": "./",
                                 "targetRevision": "HEAD"
                             },
                             "project": "default"
@@ -106,11 +98,12 @@ pipeline {
                     """
 
                     sh """
-                    curl -X POST -H "Content-Type: application/json" -d '${appJson}' ${ARGO_CD_URL}
+                    curl -X POST -H "Content-Type: application/json" -k -d '${appJson}' ${ARGO_CD_URL}
                     """
                 }
             }
         }
+
     }
 
     post {
