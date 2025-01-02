@@ -75,7 +75,7 @@ pipeline {
                     sh """
 
                         argocd login --username admin --password DkN1LPRIUq7cd4a4 --insecure localhost:8081
-                        argocd app create helm-demo-app  --repo https://github.com/weiweizhangr/helloworld.git  --path app --dest-server https://kubernetes.default.svc  --dest-namespace helm-demo-test  --sync-option CreateNamespace=true --parameter namespace=helm-demo
+                        argocd app create helm-demo-app  --repo https://github.com/weiweizhangr/helloworld.git  --path app --dest-server https://kubernetes.default.svc  --dest-namespace helm-demo-test  --sync-option CreateNamespace=true --parameter namespace=helm-demo-test
 
                     """
                 }
