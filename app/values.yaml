@@ -9,7 +9,7 @@ image:
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
-namespace: argocd
+namespace: argocd-test
 imagePullSecrets: 
   - name: github-registry-credentials
 nameOverride: ""
