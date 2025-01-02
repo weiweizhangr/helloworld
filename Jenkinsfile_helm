@@ -74,13 +74,7 @@ pipeline {
                 script {
                     sh """
 
-                        argocd app create helm-demo-app \                                              
-                                --repo https://github.com/weiweizhangr/helloworld.git \
-                                --path app \
-                                --dest-server https://kubernetes.default.svc \
-                                --dest-namespace helm-demo \
-                                --sync-option CreateNamespace=true \
-                                --parameter namespace=helm-demo
+                        argocd app create helm-demo-app  --repo https://github.com/weiweizhangr/helloworld.git  --path app --dest-server https://kubernetes.default.svc  --dest-namespace helm-demo  --sync-option CreateNamespace=true --parameter namespace=helm-demo
 
                     """
                 }
