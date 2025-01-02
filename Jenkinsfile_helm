@@ -1,0 +1,98 @@
+pipeline {
+    agent any
+
+    environment {
+        // GitHub Packages 仓库的相关信息
+        GITHUB_PACKAGE_REGISTRY = 'docker.pkg.github.com'
+        GITHUB_REPOSITORY = 'weiweizhangr/helloworld'
+        DOCKER_IMAGE_NAME = 'my-node-app'
+        DOCKER_TAG = 'latest'
+        DOCKER_IMAGE = "${GITHUB_PACKAGE_REGISTRY}/${GITHUB_REPOSITORY}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}"
+        
+        // GitHub 个人访问令牌 (PAT)
+        GITHUB_PAT = "${env.GITHUB_PAT}"
+
+        // Kubernetes 配置
+        KUBECONFIG_REPO = 'https://github.com/weiweizhangr/helloworld_config.git'
+        KUBECONFIG_PATH = ''
+        KUBECONFIG_FILE = ''
+
+        // Argo CD API 相关信息
+        ARGO_CD_URL = 'https://localhost:8081/api/v1/applications'
+        // ARGO_CD_TOKEN = "${env.ARGO_CD_TOKEN}"
+        NAMESPACE = 'argocd-test'
+        REPO_URL = 'https://github.com/weiweizhangr/helloworld_config.git'
+        DEST_SERVER = 'https://kubernetes.default.svc'
+        ARGO_CD_USERNAME = "admin"
+        ARGO_CD_PASSWORD = "DkN1LPRIUq7cd4a4"
+
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             // 构建 Docker 镜像
+        //             sh """
+        //             docker build -t ${DOCKER_IMAGE} .
+        //             """
+        //         }
+        //     }
+        // }
+
+        // stage('Login to GitHub Packages') {
+        //     steps {
+        //         script {
+        //             // 使用 GitHub 个人访问令牌 (PAT) 登录到 GitHub Packages
+        //             withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_PAT')]) {
+        //                 sh """
+        //                 echo \${GITHUB_PAT} | docker login ${GITHUB_PACKAGE_REGISTRY} -u weiweizhangr --password-stdin
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
+
+        // stage('Push Docker Image') {
+        //     steps {
+        //         script {
+        //             // 推送 Docker 镜像到 GitHub Packages
+        //             sh """
+        //             docker push ${DOCKER_IMAGE}
+        //             """
+        //         }
+        //     }
+        // }
+        stage('Create Application by helm in Argo CD') {
+            steps {
+                script {
+                    sh """
+
+                        argocd app create helm-demo-app \                                              
+                                --repo https://github.com/weiweizhangr/helloworld.git \
+                                --path app \
+                                --dest-server https://kubernetes.default.svc \
+                                --dest-namespace helm-demo \
+                                --sync-option CreateNamespace=true \
+                                --parameter namespace=helm-demo
+
+                    """
+                }
+            }
+        }
+
+    }
+
+    post {
+        always {
+            // 清理工作
+            cleanWs()
+        }
+    }
+}
