@@ -1,0 +1,41 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: helloworld
+  description: This is a sample app for Backstage.
+spec:
+  owner: masa
+  domain: backstage-example
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: helloworld
+  description: |
+    This is [sample app](https://github.com/weiweizhangr/helloworld) for Backstage.
+  annotations:
+    'backstage.io/kubernetes-id': 'helloworld'
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - url: https://github.com/weiweizhangr/helloworld
+      title: GitHub Repo
+      icon: github
+spec:
+  type: service
+  lifecycle: prduction
+  system: helloworld
+  owner: sophia
+  dependsOn:
+    - resource:backend-db
+  providesApis:
+    - sample-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: backend-db
+  description: Stores backend-app data
+spec:
+  type: database
+  owner: db-team
+  system: backstage-example-app
